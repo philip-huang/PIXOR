@@ -41,3 +41,11 @@ Example:
 ```
 Pedestrian 13.00 2.75 0.45 0.65
 ```
+
+### Coordinate Frame Used
+
+x-axis [0, 30] represent the distance in front of the car [front is positive, back is negative]
+y-axis [-20, 20] represent the distance beside the car. [left is positive, right is negative]
+z-axis  [up is positive, bottom is negative]
+
+The system is _right-handed_
