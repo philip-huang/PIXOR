@@ -1,0 +1,6 @@
+/TestData
+/Labels
+/velodyne_ws/build
+/velodyne_ws/devel
+/velodyne_ws/logs
+*.catkin_tools*
