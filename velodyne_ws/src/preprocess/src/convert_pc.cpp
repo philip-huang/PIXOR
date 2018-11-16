@@ -9,23 +9,26 @@
 
 ros::Publisher pub;
 
-std::vector<std::vector<std::vector<float> > >  preprocess_pc(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud){
-  //x is 1.1, 40       0.1m   Matrix size is 390 x 291 x 66
-  //y is -14.5, 14.5   -->    Add one z layer for intensity, and another layer to count nonzeros
-  //z is -3.0, 3.5     -->    Final size use 390 x 291 x 68 (will cut away last layer)
+std::vector<std::vector<std::vector<float> > >*  preprocess_pc(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud){
+  //x is  0, 40       0.1 m   Matrix size is 65 x 400 x 300 (first is z, aka channels)
+  //y is -15, 15       -->    Add one z layer for intensity, and another layer to count nonzeros
+  //z is -3.0, 3.5     -->    Final size use 67 x 400 x 300 (will cut away last channel of counts)
   
   bool xrange, yrange, zrange;
-   std::cout<<"h";
-  std::vector<std::vector<std::vector<float> > > 
-        output (390,std::vector<std::vector<float> >(291,std::vector <float>(68,0)));
- 
+  //std::vector<std::vector<std::vector<float> > >* output =  new std::vector<std::vector<std::vector<float> > > (67); 
+  for(int i=0; I<67 ; i++) {
+    (*output)[i] = new std::vector<std::vector<float> >(400);
+    for(int j=0; j<400; j++){
+      (*output)[I][j].resize(300);
+    }
+  }
   for (long i = 0; i <1000 ; i++){  //cloud.points.size ()
     int x = static_cast<int>((cloud->points[i].x - 1.1) * 10);
     int y = static_cast<int>((cloud->points[i].y + 14.5) * 10);
     int z = static_cast<int>((cloud->points[i].z + 3) * 10);
-    xrange = x < 390;
-    yrange = y < 291;
-    zrange = z < 66;
+    xrange = x < 400;
+    yrange = y < 300;
+    zrange = z < 65;
     if(xrange && yrange && zrange){
       output[x][y][z] = 1;
       float cur_avg = output[x][y][66];
@@ -34,6 +37,7 @@ std::vector<std::vector<std::vector<float> > >  preprocess_pc(pcl::PointCloud<pc
       output[x][y][67] += 1;
     }
   }
+  output.pop_back();
   return output;
 }
 
@@ -48,8 +52,8 @@ void pcCallback (const sensor_msgs::PointCloud2ConstPtr& input){
   //pcl::PointCloud<pcl::PointXYZI> cloud;
   //pcl::fromROSMsg(*input, cloud);
   //std::cout<<"h";
-  preprocess_pc(cloud);
-
+  std::vector<std::vector<std::vector<float> > >* output;
+  output = preprocess_pc(cloud);
 
 
 }
