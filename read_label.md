@@ -33,13 +33,13 @@ All labels are given in the **Velodyne frame** and in **metric** space
 
 An object entry contains the Following:
 ```
-Name, min_x, min_y, width , height
+Name, width , height centroidx, centroidy, yaw
 ```
-where minumum_x (y) is the smallest possible x(y) coordinate circled by the rectangular bounding box
+where yaw is measured from x axis and positive if the car is tilted to the left.
 
 Example:
 ```
-Pedestrian 13.00 2.75 0.45 0.65
+ADD EXAMPLE
 ```
 
 ### Coordinate Frame Used

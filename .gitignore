@@ -4,3 +4,6 @@
 /velodyne_ws/devel
 /velodyne_ws/logs
 *.catkin_tools*
+.DS_STORE
+*.pyc
+*cache*
