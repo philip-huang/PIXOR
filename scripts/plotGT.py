@@ -1,6 +1,7 @@
 from os.path import join
 import cv2
 import numpy as np
+from helpers import *
 
 meter_to_pixel = 20
 BEV_H = 30
@@ -23,22 +24,15 @@ def plot_image(bag, name):
             bbox = np.zeros((4, 2))
             entry = line.split(' ')
             object = entry[0]
-            x = float(entry[1])
-            y = float(entry[2])
-            delta_y = float(entry[3]) # width of bounding box
-            delta_x = float(entry[4]) # height of bounding box
-            print(object, x, y, delta_x, delta_y)
+            w = float(entry[1])
+            l = float(entry[2])
+            c_x = float(entry[3]) 
+            c_y = float(entry[4]) 
+            yaw = float(entry[5]) 
+            print(object, w, l, c_x, c_y, yaw)
             
-            bbox[0, 0] = x
-            bbox[0, 1] = y
-            bbox[1, 0] = x + delta_x
-            bbox[1, 1] = y
-            bbox[2, 0] = x + delta_x
-            bbox[2, 1] = y + delta_y
-            bbox[3, 0] = x
-            bbox[3, 1] = y + delta_y
+            bbox[0], bbox[1], bbox[2], bbox[3] = centroid_yaw2points(w, l, cx, cy, yaw)
             label_list.append(bbox)
-    
     plot_bev(im, label_list, map_height=BEV_H * meter_to_pixel)
         
             
