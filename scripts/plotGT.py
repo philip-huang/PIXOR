@@ -4,18 +4,21 @@ import numpy as np
 from helpers import *
 
 meter_to_pixel = 20
-BEV_H = 30
-BEV_W = 40
+BEV_H = 40
+BEV_W = 30
 
 def plot_image(bag, name):
-    file_name = join(bag, 'velo', name+'.png')
+    file_name = '/home/briallan/HawkEyeData/TestData/_2018-10-30-15-25-07/velo/'+name + '.png'
+    #file_name = join(bag, 'velo', name+'.png')
     im = cv2.imread(file_name)
     cv2.imshow('original', im)
+    cv2.waitKey(0)
     # rotate image
-    im = cv2.transpose(im)
-    im = cv2.flip(im, 1)
+    #im = cv2.transpose(im)
+    #im = cv2.flip(im, 1)
 
-    label_name = join(bag, 'labels', name+'.txt')
+    #label_name = join(bag, 'labels', name+'.txt')
+    label_name = '/home/briallan/HawkEyeData/TestData/_2018-10-30-15-25-07/labels/'+name + '.txt'
     
     with open(label_name, 'r') as f:
         lines = f.readlines() 
@@ -26,14 +29,23 @@ def plot_image(bag, name):
             object = entry[0]
             w = float(entry[1])
             l = float(entry[2])
-            c_x = float(entry[3]) 
-            c_y = float(entry[4]) 
+            cx = float(entry[3]) 
+            cy = float(entry[4]) 
             yaw = float(entry[5]) 
-            print(object, w, l, c_x, c_y, yaw)
+            print(object, w, l, cx, cy, yaw)
             
             bbox[0], bbox[1], bbox[2], bbox[3] = centroid_yaw2points(w, l, cx, cy, yaw)
             label_list.append(bbox)
-    plot_bev(im, label_list, map_height=BEV_H * meter_to_pixel)
+    print("Labelled boxes:", label_list)
+    for corners in label_list:  
+        corners = corners* meter_to_pixel
+        plot_corners = corners.astype(int).reshape((-1, 1, 2))
+        cv2.polylines(im, [plot_corners], True, (255, 0, 0), 2)
+
+    cv2.imshow('gt', im)
+    cv2.waitKey(0)
+    #plot_bev(im, label_list, map_height=BEV_H * meter_to_pixel)
+
         
             
             
@@ -58,14 +70,15 @@ def plot_bev(velo_array, label_list = None, map_height=600, window_name='GT'):
             plot_corners = corners * meter_to_pixel
             plot_corners[:, 1] += int(map_height//2)
             plot_corners[:, 1] = map_height - plot_corners[:, 1]
-            print(plot_corners)
+            print(plot_corners/meter_to_pixel)
             plot_corners = plot_corners.astype(int).reshape((-1, 1, 2))
             cv2.polylines(velo_array, [plot_corners], True, (255, 0, 0), 2)
             cv2.line(velo_array, tuple(plot_corners[2, 0]), tuple(plot_corners[3, 0]), (0, 0, 255), 3)
 
     cv2.imshow(window_name, velo_array)
+    cv2.waitKey(0)
         
 if __name__ == "__main__":  
-    bag = '_2018-10-30-14-31-17'
+    bag = '_2018-10-30-15-25-07'
     name = 'bev0000'
     plot_image(bag, name)

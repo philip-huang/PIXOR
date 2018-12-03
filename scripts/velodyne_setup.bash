@@ -8,7 +8,7 @@ killall -9 rosmaster
 roscore 
 
 
-source $dir/velodyne_ws/devel/setup.bash 
+source $dir/../velodyne_ws/devel/setup.bash 
 roslaunch velodyne_driver nodelet_manager.launch &
 
 #rosrun cloud_node must take in absolute path of calibration file
