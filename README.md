@@ -21,11 +21,14 @@ make sure your gcc compiler are running 32bits (64) if your python runs 32bits (
 
 ### Train
 Make sure you set your experiment name and put a config.json file in srcs/experiments/$exp_name$
+```
 python srcs/main.py train (--name=$experiment name$)
-
+```
 ### Evaluation
 
+```
 python srcs/main.py val (--name=$experiment name$)
+```
 
 ### Dependencies
 Python 3.5 (3.6)
