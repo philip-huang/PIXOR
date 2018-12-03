@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
+from utils import maskFOV_on_BEV
 
 
 def conv3x3(in_planes, out_planes, stride=1, bias=False):
@@ -71,10 +73,12 @@ class Bottleneck(nn.Module):
             out = self.bn2(out)
         out = self.relu(out)
         out = self.conv3(out)
+        if self.use_bn:
+            out = self.bn3(out)
 
         if self.downsample is not None:
             residual = self.downsample(x)
-        out = F.relu(residual + out)
+        out = self.relu(residual + out)
         return out
 
 class BackBone(nn.Module):
@@ -92,7 +96,7 @@ class BackBone(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
 
-        # Block 2
+        # Block 2-5
         self.in_planes = 32
         self.block2 = self._make_layer(block, 24, num_blocks=num_block[0])
         self.block3 = self._make_layer(block, 48, num_blocks=num_block[1])
@@ -284,42 +288,65 @@ class PIXOR(nn.Module):
         self.header = Header(use_bn)
         self.corner_decoder = Decoder(geom)
         self.use_decode = decode
-
+        self.cam_fov_mask = maskFOV_on_BEV(geom['label_shape'])
+        
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, math.sqrt(2. / n))
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+        
+        prior = 0.01
+        self.header.clshead.weight.data.fill_(-math.log((1.0-prior)/prior))
+        self.header.clshead.bias.data.fill_(0)
+        self.header.reghead.weight.data.fill_(0)
+        self.header.reghead.bias.data.fill_(0)
 
     def set_decode(self, decode):
         self.use_decode = decode
 
     def forward(self, x):
-        x = x.permute(0, 3, 1, 2)
+        
+        device = torch.device('cpu')
+        if x.is_cuda:
+            device = x.get_device()
+        
+        # x = x.permute(0, 3, 1, 2)
         # Torch Takes Tensor of shape (Batch_size, channels, height, width)
 
         features = self.backbone(x)
         cls, reg = self.header(features)
-
+        self.cam_fov_mask = self.cam_fov_mask.to(device)
+        cls = cls * self.cam_fov_mask
         if self.use_decode:
-            reg = self.corner_decoder(reg)
+            decoded = self.corner_decoder(reg)
+            # Return tensor(Batch_size, height, width, channels)
+            #decoded = decoded.permute(0, 2, 3, 1)
+            #cls = cls.permute(0, 2, 3, 1)
+            #reg = reg.permute(0, 2, 3, 1)
+            pred = torch.cat([cls, reg, decoded], dim=1)
+        else:
+            pred = torch.cat([cls, reg], dim=1)
 
-        # Return tensor(Batch_size, height, width, channels)
-        cls = cls.permute(0, 2, 3, 1)
-        reg = reg.permute(0, 2, 3, 1)
-
-        return torch.cat([cls, reg], dim=3)
+        return pred
 
 def test_decoder(decode = True):
     geom = {
-        "L1": -20.0,
-        "L2": 20.0,
+        "L1": -40.0,
+        "L2": 40.0,
         "W1": 0.0,
-        "W2": 40.0,
+        "W2": 70.0,
         "H1": -2.5,
         "H2": 1.0,
-        "input_shape": [400, 400, 36],
-        "label_shape": [100, 100, 7]
+        "input_shape": [800, 700, 36],
+        "label_shape": [200, 175, 7]
     }
     print("Testing PIXOR decoder")
     net = PIXOR(geom, use_bn=False)
     net.set_decode(decode)
-    preds = net(torch.autograd.Variable(torch.randn(2, 400, 400, 36)))
+    preds = net(torch.autograd.Variable(torch.randn(2, 800, 700, 36)))
 
     print("Predictions output size", preds.size())
 
