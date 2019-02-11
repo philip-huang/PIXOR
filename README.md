@@ -1,8 +1,10 @@
 # PIXOR: Real-time 3D Object Detection from Point Clouds
 
-This is a custom implementation of the paper from Uber ATG using PyTorch 1.0
+This is a custom implementation of the paper from Uber ATG using PyTorch 1.0. It represents the driving scene using lidar data in the Birds' Eye View (BEV) and uses a single stage object detector to predict the poses of road objects with respect to the car
 
 [PIXOR: Real-time 3D Object Detection from Point Clouds](http://openaccess.thecvf.com/content_cvpr_2018/papers/Yang_PIXOR_Real-Time_3D_CVPR_2018_paper.pdf)
+
+![alt text](sample.png)
 
 ## Highlights
 - **PyTorch 1.0** Reproduced and trained from scratch using the **KITTI** dataset
@@ -70,3 +72,26 @@ To view tensorboard
 ```
 tensorboard --logdir=srcs/logs/$exp_name$
 ```
+
+## TODO
+* [ ] Improve accuracy on KITTI dataset
+* [ ] Data augmentation
+* [ ] Generalization gap on custom driving sequences
+
+## Credits
+Project Contributors
+* Philip Huang
+* Allan Liu 
+
+Paper Citation below
+```
+
+
+@inproceedings{yang2018pixor,
+  title={PIXOR: Real-Time 3D Object Detection From Point Clouds},
+  author={Yang, Bin and Luo, Wenjie and Urtasun, Raquel}
+}
+```
+
+We would like to thank [aUToronto](https://www.autodrive.utoronto.ca/) for genersouly sponsoring GPUs for this project
+
