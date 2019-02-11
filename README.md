@@ -4,7 +4,7 @@ This is a custom implementation of the paper from Uber ATG using PyTorch 1.0. It
 
 [PIXOR: Real-time 3D Object Detection from Point Clouds](http://openaccess.thecvf.com/content_cvpr_2018/papers/Yang_PIXOR_Real-Time_3D_CVPR_2018_paper.pdf)
 
-![alt text](sample.png)
+![alt text](imgs/sample.png)
 
 ## Highlights
 - **PyTorch 1.0** Reproduced and trained from scratch using the **KITTI** dataset
@@ -55,6 +55,9 @@ make_kitti_video()
 ``` 
 
 ## Training and Evaluation
+Our Training Result (as of Dec 2018)
+![alt text](imgs/result.png)
+
 All configuration (hyperparameters, GPUs, etc) should be put in a **config.json** file and save to the directory *srcs/experiments/$exp_name$*
 To train
 ```
@@ -74,9 +77,11 @@ tensorboard --logdir=srcs/logs/$exp_name$
 ```
 
 ## TODO
-* [ ] Improve accuracy on KITTI dataset
+* [ ] Improve training accuracy on KITTI dataset
 * [ ] Data augmentation
 * [ ] Generalization gap on custom driving sequences
+* [ ] Data Collection
+* [ ] Improve model (possible idea: use map as a prior)
 
 ## Credits
 Project Contributors
